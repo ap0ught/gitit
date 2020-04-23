@@ -1,16 +1,16 @@
 Gitit
 =====
 
-Gitit is a wiki program written in Haskell. It uses [Happstack][] for
-the web server and [pandoc][] for markup processing. Pages and uploaded
-files are stored in a [git][], [darcs][], or [mercurial][] repository
+Gitit is a wiki program written in Haskell. It uses [Happstack] for
+the web server and [pandoc] for markup processing. Pages and uploaded
+files are stored in a [git], [darcs], or [mercurial] repository
 and may be modified either by using the VCS's command-line tools or
 through the wiki's web interface. By default, pandoc's extended version
-of markdown is used as a markup language, but reStructuredText, LaTeX,
-or HTML can also be used. Pages can be exported in a number of different
-formats, including LaTeX, RTF, OpenOffice ODT, and MediaWiki markup.
-Gitit can be configured to display TeX math (using [texmath][]) and
-highlighted source code (using [highlighting-kate][]).
+of markdown is used as a markup language, but reStructuredText, LaTeX, HTML,
+DocBook, or Emacs Org-mode markup can also be used. Pages can be exported in a
+number of different formats, including LaTeX, RTF, OpenOffice ODT, and
+MediaWiki markup.  Gitit can be configured to display TeX math (using
+[texmath]) and highlighted source code (using [highlighting-kate]).
 
 Other features include
 
@@ -31,12 +31,10 @@ Other features include
 * a library, "Network.Gitit", that makes it simple to include a gitit
   wiki in any happstack application
 
-You can see a running demo at <http://gitit.johnmacfarlane.net>.
-
 [git]: http://git.or.cz
 [darcs]: http://darcs.net
 [mercurial]: http://mercurial.selenic.com/
-[pandoc]: http://johnmacfarlane.net/pandoc
+[pandoc]: http://pandoc.org
 [Happstack]: http://happstack.com
 [highlighting-kate]: http://johnmacfarlane.net/highlighting-kate/
 [texmath]: http://github.com/jgm/texmath/tree/master
@@ -47,22 +45,21 @@ Getting started
 Compiling and installing gitit
 ------------------------------
 
-You'll need the [GHC][] compiler and the [cabal-install][] tool. GHC can
-be downloaded [here][]. Note that, starting with release 0.5, GHC 6.10
-or higher is required. For [cabal-install][] on *nix, follow the [quick
-install][] instructions.
+The most reliable way to install gitit from source is to get the
+[stack] tool.  Then clone the gitit repository and use stack
+to install:
 
-[GHC]: http://www.haskell.org/ghc/
-[here]: http://www.haskell.org/ghc/
-[cabal-install]:  http://hackage.haskell.org/trac/hackage/wiki/CabalInstall
-[quick install]:  http://hackage.haskell.org/trac/hackage/wiki/CabalInstall#Quick Installation on Unix
+    git clone https://github.com/jgm/gitit
+    cd gitit
+    stack install
 
-Once you've got cabal-install, installing gitit is trivial:
+Alternatively, instead of using [stack], you can get the
+[Haskell Platform] and do the following:
 
     cabal update
     cabal install gitit
 
-These commands will install the latest released version of gitit.
+This will install the latest released version of gitit.
 To install a version of gitit checked out from the repository,
 change to the gitit directory and type:
 
@@ -79,23 +76,8 @@ If that doesn't work, check to see that `gitit` is in your local
 cabal-install executable directory (usually `~/.cabal/bin`). And make
 sure `~/.cabal/bin` is in your system path.
 
-Optional syntax highlighting support
-------------------------------------
-
-If pandoc was compiled with optional syntax highlighting support,
-this will be available in gitit too.  This feature is recommended
-if you plan to display source code on your wiki.
-
-Highlighting support requires the [pcre][] library, so make sure that
-is installed before continuing.
-
-[pcre]:  http://www.pcre.org/ 
-
-To install gitit with highlighting support, first ensure that pandoc
-is compiled with highlighting support, then install gitit as above:
-
-    cabal install pandoc -fhighlighting --reinstall
-    cabal install gitit
+[stack]: https://github.com/commercialhaskell/stack
+[Haskell Platform]: https://www.haskell.org/platform/
 
 Running gitit
 -------------
@@ -197,7 +179,7 @@ Highlighted source code
 
 If gitit was compiled against a version of pandoc that has highlighting
 support (see above), you can get highlighted source code by using
-[delimited code blocks][]:
+[delimited code blocks]:
 
     ~~~ {.haskell .numberLines}
     qsort []     = []
@@ -209,7 +191,7 @@ To see what languages your pandoc was compiled to highlight:
 
     pandoc -v
 
-[delimited code blocks]: http://johnmacfarlane.net/pandoc/README.html#delimited-code-blocks
+[delimited code blocks]: http://pandoc.org/README.html#delimited-code-blocks
 
 Configuring and customizing gitit
 =================================
@@ -220,6 +202,13 @@ Configuration options
 Use the option `-f [filename]` to specify a configuration file:
 
     gitit -f my.conf
+
+The configuration can be split between several files:
+
+	gitit -f my.conf -f additional.conf
+
+One use case is to keep sensible part of the configuration outside of a SCM
+(oauth client secret for example).
 
 If this option is not used, gitit will use a default configuration.
 To get a copy of the default configuration file, which you
@@ -292,15 +281,16 @@ To change the look of printed pages, copy gitit's default `print.css`
 to `static/css` and modify it.
 
 The logo picture can be changed by copying a new PNG file to
-`static/img/logo.png`.
+`static/img/logo.png`. The default logo is 138x155 pixels.
 
 To change the footer, modify `templates/footer.st`.
 
 For more radical changes, you can override any of the default
 templates in `$CABALDIR/share/gitit-x.y.z/data/templates` by copying
-the file into `templates` and modifying it. The `page.st` template is
-the master template; it includes the others. Interpolated variables are
-surrounded by `$`s, so `literal $` must be backslash-escaped.
+the file into `templates`, modifying it, and restarting gitit. The 
+`page.st` template is the master template; it includes the others. 
+Interpolated variables are surrounded by `$`s, so `literal $` must 
+be backslash-escaped.
 
 Adding support for math
 -----------------------
@@ -317,28 +307,67 @@ You can write display math by enclosing it in double dollar signs:
 Gitit can display TeX math in three different ways, depending on the
 setting of `math` in the configuration file:
 
-1.  `mathml` (default): Math will be converted to MathML using
-    [texmath][]. This method works with IE+mathplayer, Firefox, and
-    Opera, but not Safari.
+1.  `mathjax` (default): Math will be rendered using the [MathJax] javascript.
 
-2.  `jsMath`: Math will be rendered using the [jsMath][] javascript.
-    If you want to use this method, download `jsMath` and `jsMath
-    Image Fonts` from the [jsMath download page][]. You'll have two
-    `.zip` archives. Unzip them both in the `static/js` directory (a new
-    subdirectory, `jsMath`, will be created).  This works with all
-    browsers, but is slower and not as nice looking as MathML.
+2.  `mathml`: Math will be converted to MathML using
+    [texmath]. This method works with IE+mathplayer, Firefox, and
+    Opera, but not Safari.
 
 3.  `raw`: Math will be rendered as raw LaTeX codes.
 
-[jsMath download page]: http://sourceforge.net/project/showfiles.php?group_id=172663
+[MathJax]: https://www.mathjax.org/
+
+Restricting access
+------------------
+
+If you want to limit account creation on your wiki, the easiest way to do this
+is to provide an `access-question` in your configuration file. (See the commented
+default configuration file.)  Nobody will be able to create an account without
+knowing the answer to the access question.
+
+Another approach is to use HTTP authentication. (See the config file comments on
+`authentication-method`.)
+
+Authentication through github
+-----------------------------
+
+If you want to authenticate the user from github through oauth2, you need to
+register your app with github to obtain a OAuth client secret and add the
+following section to your configuration file:
+
+```
+[Github]
+oauthclientid: 01239456789abcdef012
+oauthclientsecret: 01239456789abcdef01239456789abcdef012394
+oauthcallback: http://mysite/_githubCallback
+oauthoauthorizeendpoint: https://github.com/login/oauth/authorize
+oauthaccesstokenendpoint: https://github.com/login/oauth/access_token
+## Uncomment if you are checking membership against an organization and change
+## gitit-testorg to this organization:
+# github-org: gitit-testorg
+```
+
+The github authentication uses the scope `user:email`. This way, gitit gets the
+email of the user, and the commit can be assigned to the right author if the
+wikidata repository is pushed to github. Additionally, it uses `read:org` if you
+uses the option `github-org` to check membership against an organization.
+
+To push your repository to gitub after each commit, you can add the file
+`post-commit` with the content below in the .git/hooks directory of your
+wikidata repository.
+
+```
+#!/bin/sh
+git push origin master 2>> logit
+```
 
 Plugins
 =======
 
 Plugins are small Haskell programs that transform a wiki page after it
-has been converted from Markdown or RST. See the example plugins in the
-`plugins` directory. To enable a plugin, include the path to the plugin
-(or its module name) in the `plugins` field of the configuration file.
+has been converted from Markdown or another source format. See the example
+plugins in the `plugins` directory. To enable a plugin, include the path to the
+plugin (or its module name) in the `plugins` field of the configuration file.
 (If the plugin name starts with `Network.Gitit.Plugin.`, gitit will assume that
 the plugin is an installed module and will not look for a source file.)
 
@@ -427,6 +456,13 @@ To fix this, one can disable the idle-time GC with the runtime flag
 
     gitit -f my.conf +RTS -I0 -RTS
 
+
+Note:
+
+To enable RTS, cabal needs to pass the compile flag `-rtsopts` to GHC while installing.
+
+    cabal install --reinstall gitit --ghc-options="-rtsopts"
+
 Using gitit with apache
 =======================
 
@@ -439,7 +475,7 @@ Proxying to `http://wiki.mysite.com`
 ------------------------------------
 
 Set up your DNS so that `http://wiki.mysite.com` maps to
-your server's IP address. Make sure that the `mod_proxy` module is
+your server's IP address. Make sure that the `mod_proxy`, `mod_proxy_http` and `mod_rewrite` modules are
 loaded, and set up a virtual host with the following configuration:
 
     <VirtualHost *>
@@ -466,6 +502,26 @@ loaded, and set up a virtual host with the following configuration:
     </VirtualHost>
 
 Reload your apache configuration and you should be all set.
+
+Using nginx to achieve the same
+-------------------------------
+
+Drop a file called `wiki.example.com.conf` into `/etc/nginx/conf.d`
+(or where ever your distribution puts it).
+
+    server {
+        listen 80;
+        server_name wiki.example.com
+        location / {
+            proxy_pass        http://127.0.0.1:5001/;
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_redirect off;
+        }
+        access_log /var/log/nginx/wiki.example.com.log main;
+    }
+
+Reload your nginx config and you should be all set.
+
 
 Proxying to `http://mysite.com/wiki`
 ------------------------------------
@@ -512,6 +568,7 @@ Now add the following lines to the apache configuration file for the
       SetOutputFilter  proxy-html
       ProxyPassReverse /
       ProxyHTMLURLMap  /   /wiki/
+      ProxyHTMLDocType "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>" XHTML
       RequestHeader unset Accept-Encoding
     </Location>
 
@@ -533,7 +590,7 @@ Reporting bugs
 ==============
 
 Bugs may be reported (and feature requests filed) at
-<http://code.google.com/p/gitit/issues/list>.
+<https://github.com/jgm/gitit/issues>.
 
 There is a mailing list for users and developers at
 <http://groups.google.com/group/gitit-discuss>.

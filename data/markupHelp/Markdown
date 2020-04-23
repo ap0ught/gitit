@@ -15,7 +15,7 @@ at the end of the line.
 Links:
 [external](http://google.com),
 [Wiki Link](),
-![image](/img/gitit-banner.png),
+![image](/img/logo.png),
 [to heading](#section-heading).
 
 Indented code block:
@@ -41,11 +41,12 @@ let a = 1:a in head a
 
 term
 :   definition
+
 orange
 :   orange fruit
 
 ~~~~~~~~
 
 For more: [markdown syntax](http://daringfireball.net/projects/markdown),
-[pandoc extensions](http://johnmacfarlane.net/pandoc/README.html).
+[pandoc extensions](http://pandoc.org/README.html).
 

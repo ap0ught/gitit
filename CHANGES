@@ -1,3 +1,637 @@
+Version 0.13.0.0 WIP
+
+  * Allow building with GHC 8.8
+
+    + Network.Gitit.Rpxnow: change return type of `authenticate` to
+      avoid using removed instances of `Monad.fail`
+
+Version 0.12.3.2 released 31 Dec 2018
+
+  * Remove references to gitit.net in cabal file.
+    gitit.net is no longer owned by the project and
+    has not served a demo of gitit for some time (#627).
+
+Version 0.12.3.1 released 31 Dec 2018
+
+  * Improve compatibility with GHC 8.6 (Phil Ruffwind, #625).
+
+    + Replaced uses of uri (out of date package) with uri-bytestring, which
+      gitit already uses in other places.
+    + Bumped hoauth2 version bounds to support 1.8.*.
+
+Version 0.12.3 released 09 Oct 2018
+
+  * Change hk-pyg.css to highlighting.css with new CSS for pandoc 2
+    and skylighting 0.7.4. NOTE:  You must change your existing
+    custom.css to refer to highlighting.css instead of
+    hk-pyg.css, or highlighted code will not display properly.
+  * Ensure that the proper extensions are used for each format.
+  * Add Ext_emoji to readerExtensions (#616).
+  * Add Paths_gitit to other-modules to avoid warning.
+  * screen.css: remove special padding and border and color for code.
+    This interferes with pandoc's new highlighting.
+  * Fixed static in gitignore
+  * Update stack.yaml, use latest lts-12.
+  * Updates for pandoc 2.x (Myron Wu).
+  * Require skylighting >= 0.7.4.
+  * Remove jsMath as it was dropped from pandoc >= 2 (#617, Myron Wu).
+  * Add Ext_emoji to readerExtensions (#616, Conal Elliott).
+  * Changes to use recent versions of dependencies.
+    Especially feed 1.0, which uses a different xml type
+    and requires a new dependency on xml-conduit to render it.
+  * Remove support for ghc versions < 8 (Myron Wu).
+  * Bump hoauth2 to 1.3.0 && < 1.6 to catch up with nix and other
+    curated package sets (Myron Wu).
+  * Updated mathjax cdn to cloudflare.
+  * Redirect to requested wiki page after github oauth callback (Myron Wu).
+  * Use skylighting instead of deprecated highlighting-kate.
+
+Version 0.12.2.1 released 14 Feb 2017
+
+  * Bump version bounds for time, pandoc, blaze-html, aeson.
+  * Added MTable plugin (Simon Heath).
+    Adds simple but easy-to-use variable-width table syntax.
+  * Fixed Subst plugin (Simon Heath, #548).
+  * Fixed Dot plugin (Simon Heath, #568).
+
+Version 0.12.2 released 09 Nov 2016
+
+  * Allow pandoc 1.18, tagsoup 0.14, aeson, 1.x.
+
+Version 0.12.1.1 released 22 Mar 2016
+
+  * Allow pandoc 1.17 (Phil Ruffwind).
+  * Allow aeson 0.11.
+
+Version 0.12.1 released 17 Feb 2016
+
+  * Use fmap instead of <$> so ghc 7.8 won't fail.
+  * Allow latest hoauth2
+  * Fix typo (Chas Leichner).
+  * Allow compiling with pandoc 1.16.x.
+  * Add page for login failure when authorization is required for reading
+    (Phil Ruffwind).  When authorization is required to read the wiki, the
+    error message from a failed GitHub login cannot be displayed.  Instead it
+    will redirect to GitHub for another OAuth authentication, which can lead to
+    a redirect loop.  To avoid this, the user is now redirected to a special
+    landing page to display the login failure.  Note: no changes are made for
+    the case where authorization is not required to read the wiki.
+  * Improve error message of GitHub membership check (Phil Ruffwind).
+  * Add delete-summary config variable (Phil Ruffwind).
+    Used to change the commit message when a page is deleted.
+  * Use primary GitHub email rather than just the first (Phil Ruffwind).
+    The order in which user emails are returned via the GitHub API is not
+    specified, so the first may not be the one that the user prefers,
+    i.e. the so-called "primary" email.  To fix this problem, we eliminate
+    all emails except for the one marked as "primary".
+  * Make default theme responsive (Lincoln Mullen, #450).
+    This commit makes the default theme responsive. For smaller browsers, it
+    will move the sidebar below the main content div and make the sidebar
+    three columns. On phones, it will also collapse the sidebar into a
+    single column.
+  * README: Tell how to enable rtsopts for disabling GC (norpol).
+
+Version 0.12.0.1 released 24 Aug 2015
+
+  * Revert change of curly to straight quote for starting
+    User's Guide page (Wouter Oosterveld).
+  * stack.yaml: removed pandoc flag setting.
+
+Version 0.12 released 19 Aug 2015
+
+  * Export all modules.
+  * Make executable builds depend on the library in cabal file.
+  * Moved library files to src directory.
+  * Added stack.yaml.
+  * Updated README with stack install instructions.
+
+Version 0.11.1.1 released 14 Aug 2015
+
+  * Fixed Network.Gitit.Initialize so it compiles with older pandoc (#506).
+  * Removed extra import of liftIO in Dot.hs plugin.
+
+Version 0.11.1 released 23 Jul 2015
+
+  * Allow `commonmark` as a page type.
+  * Handle CommonMark page type on initialization.
+
+Version 0.11 released 02 Jun 2015
+
+  * Allow page extensions to be configurable (not just `.page`)
+    (Caleb McDaniel).
+    - Added `page-extension` option in config file (Caleb McDaniel).
+    - Added new type for `defaultExtension`
+    - Changed `isPageFile` to get extension from config
+    - New function `isNotDiscussPageFile`
+    - `pathForPage` must be passed extension as String
+    - `isPageFile` now returns GititServerPart Bool instead of just Bool.
+  * Reverted some changes to Plugins that caused excessive memory use.
+  * Allow pandoc 1.15.
+  * Added missing `<br>` tag in form on registration page (Vaughn Iverson).
+  * Show page diffs in feed (Imuli).
+  * Display commit messages in feed entry titles (Imuli).
+  * Fix preview button for modern jQuery (Imuli).
+  * Feed titles reflect site and page names (Imuli).
+  * Present feed in canonical order (recent first, Imuli).
+  * https support for base-url config option (Imuli).
+
+Version 0.10.7 released 02 Jun 2015
+
+  * Fixes to allow building with pandoc 1.14. `CommonMark` added
+    as a constructor of `PageType`.  CommonMark can now be used as
+    a page format and is also available for page export.
+  * Plugins:  added some recommended option flags.
+  * Allow `---` as well as `...` to end metadata (#493).
+  * README: changed dead links (Rick Hanson).
+
+Version 0.10.6.3 released 08 May 2015
+
+  * README:  use shortcut style markdown links.
+  * Fixed profiling options.
+  * Added .travis.yml.
+  * Allow both time >= 1.5.0.0 and time < 1.5.0.0 with old-locale
+    (Michal Antkiewicz)
+
+Version 0.10.6.2 released 02 April 2015
+
+  * Bumped upper version bounds.
+  * Fix typos in README.markdown (Igor Vuk).
+  * Update bug tracker link (Waldir Pimenta).
+
+Version 0.10.6.1 released 28 October 2014
+
+  * Added Network.Gitit.Compat.Except to cabal module list.
+
+Version 0.10.6 released 28 October 2014
+
+  * Escape HTML characters in user name when showing it on a web page.
+    This addresses a security flaw in previous versions, pointed out
+    by Davy Stoffel.  A fake password reset email could be provided
+    to users, with the link:
+
+        http://gitit.net/_doResetPassword?reset_code=azeaze&username=
+        davy%3Cscript%3Ealert%281%29%3C/script%3E
+
+    If the person clicked the link, the unknown username would be
+    displayed (unescaped), and the javascript would run.
+    This fix addresses the flaw, not by preventing the funny user name,
+    but by ensuring that the HTML tags are escaped when the user name
+    is shown on the page.
+
+  * Network.Gitit.Initialize: Allow mediawiki for default pages.
+
+  * Enable readerParseRaw for all formats.
+    This will enable things like script and iframe tags to get
+    parsed from HTML sources, and unrecognized latex tags from LaTeX.
+
+  * Refined github login (Freiric Barral).
+
+  * Include jquery sources in sdist tarballs (Anthony Towns).
+
+  * Add support for `mediawiki` as a page format (Raymond Gauthier).
+
+Version 0.10.5.1 released 21 September 2014
+
+  * Added markup help for org mode.  Closes #449.
+
+  * Utils.parsePageType:  Added case for "org".
+
+  * Allow newer versions of dependencies.
+
+Version 0.10.5 released 23 August 2014
+
+  * Added github login option (Freiric Barral).
+
+  * Change default math display to mathjax.
+
+  * Relaxed package bounds, fixed compiler warnings.
+    Added Network.Gitit.Compat.Except module for compatibility
+    with earlier and later mtl versions.
+
+  * Added network-uri flag to accommodate network-uri/network split.
+
+  * Fixed failure when loading the Subst plugin (Glenn Searby).
+
+  * Added Makefile, for use in installing on server.
+
+  * Include takeBaseName in System.FilePath import (Caleb McDaniel).
+
+  * Update README.markdown on Apache installation (Peter Gallagher).
+
+  * Add full versions of minified JavaScript (#400) (Peter Gallagher).
+
+  * Enable highlighting of patterns that start or end with punctuation
+    (Caleb McDaniel).
+
+  * Moved oauth secret to separate config file (Freiric Barral).
+
+  * Corrected MathJax CDN URL (Maciek Makowski).
+
+Version 0.10.4 released 30 Jun 2014
+
+*   Updated package bounds for happstack (#382), pandoc, blaze-html,
+    network.
+
+*   Display EPS as image, not code.
+
+*   Fixed recent activity page for binary files (Sergey Koposov).
+
+*   Use normal spaces instead of nbsp in activity page (Sergey Koposov).
+
+*   Display a delete link next to uploads in file list (rekado).
+
+*   Change _search to use HTTP GET, so searches can be linked
+    and refreshed (Joe Hillenbrand).
+
+*   Document mod_proxy_html setting in README.  Added a mod_proxy_html
+    configuration directive to insert a DOCTYPE string (Johann Visagie).
+
+*   Added new template variables `isdiscusspage`, `isarticleUrl`,
+    `discussionUrl`.  This makes it possible to treat discussion pages
+    specially in templates, and insert appropriate links (Shane O'Brien).
+
+*   Added template variables `articlename`, `discussionname`,
+    `isarticlepage` (Shane O'Brien).
+
+*   Added redirects (#233).  You can now create a redirect page by adding
+    a `redirect` field to the metadata of a page (Shane O'Brien).
+
+    - When a user visits a redirect page, they are redirected to the
+      destination page.
+    - At the destination page, a message is displayed telling the user
+      that they have been redirected from the source page. A link is
+      provided back to the source page, with a parameter to disable the
+      redirect (so that it can be edited).
+    - Gitit will detects circular redirects and explain to the user
+      what is going on in such cases.
+
+*   Added "search for pages containing..." option to `createPage`.
+    Changed "page not found" page to give the option of searching for
+    the page name or creating a page with that name (Shane O'Brien).
+
+*   Set `pgTitle` in `showDiff` (Shane O'Brien).
+
+*   Made the default "since" for the activity page configurable
+    (Shane O'Brien).
+
+*   Only set the `tabs` template variable if there are tabs (Shane O'Brien).
+
+*   Removed access question from password reset form. It's only
+    needed for the register form (Shane O'Brien).
+
+*   Added `for` attribute to all labels on forms (Shane O'Brien).
+
+*   Updated `pageToString` to use new metadata format (Shane O'Brien).
+
+*   Handlers: Fixed duplicate function defn for `fileAnchor`.
+
+*   Added `Org` and `BocBook` to `PageType` (API change).  Pages
+    may now be written in Ord mode or DocBook syntax.
+
+*   Allow multiple categories, separated by commas,
+    in a `_category` URL (Caleb McDaniel).  The pages in all listed
+    categories will be returned.
+
+*   Added filter links for `_category` pages (Cabel McDaniel).
+
+*   Fixed image exports in Docx, RTF, slides, PDF (#399, #353).
+
+*   Restored inline syntax highlighting.
+
+*   Fixed highlighting in exports (#356).
+
+*   Added `ICML` and `beamer` as export formats (#391).
+
+*   Added github-style backgrounds to code blocks (Joe Hillenbrand).
+
+*   Lighter heading border (like wikimedia) (Joe Hillenbrand).
+
+*   Fixed links on activity page (Shane O'Brien).
+
+*   Added markup help for Textile, Org, DocBook (#434).
+
+*   Modified plugins/Subst.hs to work with latest pandoc (Tianyi Cui).
+
+*   Fixed wiki links when `base-url` is empty and `absolute-urls` yes
+    (Tianyi Cui).
+
+*   README:  document that changes to templates require a restart (Raphael).
+
+
+Version 0.10.3.1 released 19 Mar 2013
+
+*   Fixed filename encoding problem affecting caching,
+    for gitit compiled with GHC 7.4 or later.
+
+*   Fixed padding on some buttons (akerbos).
+
+*   Specify correct format in header for initial pages (benmachine).
+
+Version 0.10.3 released 09 Mar 2013
+
+*   Allow latest versions of pandoc, blaze-html, HStringTemplate.
+
+*   Fixed duplicate ids in user box.
+
+*   Added `mathjax-script` option, specifies the mathjax script to
+    use. (Dmitry Gerasimov.)
+
+*   Set focus on editedText on page load.  (Mathieu Larose.)
+
+*   Added `address` config option.  (Matieu Larose.)
+
+Version 0.10.2 released 09 Feb 2013
+
+*   Updated to work with pandoc 1.10.
+
+*   Fixed path for MathMLInHTML.js script.  Closes #345.
+    Thanks to tstgruby.
+
+*   Updated interwiki plugin (gwern).
+
+*   Made it possible to export pages with images stored in the
+    repository itself (as opposed to the static directory).  Thanks
+    to Claudio Bley for the patch.
+
+Version 0.10.1.2 released 11 Jan 2013
+
+*   Fixed regression in option parsing.  An earlier patch
+    caused the '-f' option not to work.  Closes #336.
+
+Version 0.10.1.1 released 01 Jan 2013
+
+*   Allow compilation with directory < 1.2.
+
+Version 0.10.1 released 31 Dec 2012
+
+*   Fixed duplicate dropExtension on categoryPage.  (atsuo yamada)
+    This created problems with categories containing periods.
+
+*   Fixed duplicate unescaping of HTML entities. (atsuo yamada)
+
+*   Supply $revision$ at _diff if "Changes from beginning to..."
+    (atsuo yamada)
+
+*   MathJax rendering is now working in edit preview mode
+    (Dmitry Gerasimov).
+
+*   Upgrade directory package dependency to 1.2, and
+    fix compilation issue with GHC 7.6.1 (Bin Jin).
+
+*   Allow metadata keys to include digits, _, -.  Closes #328.
+
+*   Don't read config for --help or --version (Ben Millwood).
+    Also involves a refactor of options into those that make the program
+    quit immediately, and those that just alter the configuration.
+
+*   Updated to use filestore 0.6 (new diff API).
+    Thanks to markwright for partial patch.
+
+*   Include format metadata in default installed pages.
+    This allows them to continue working when the user changes the
+    default page format.  Closes #329.
+
+*   Added explicit path to Gitit User's Guide in default front page.
+
+*   Fix Gitit User's Guide link on front page.
+    Previously it was broken due to "smart punctuation."
+
+*   Fixed validation messages.  Switched from using lookRead "messages"
+    to using looks "message" for messages.  Closes #294.
+
+Version 0.10.0.2 released 02 Nov 2012
+
+*   Raised version bounds for dependencies.
+
+*   Updated post-update script to use new forms of git commands.
+    Closes #317.
+
+*   Fixed withTempDir so it returns to old directory.
+    Closes #303.  This is a slightly different solution than the one
+    proposed by tstgruby, but it has the advantage that only withTempDir
+    itself needs to be changed.
+
+*   Added nginx example for proxy setup (README) (Andre Kelpe).
+
+Version 0.10.0.1 released 07 Jun 2012
+
+*   Fixed double-encoding bug for unicode page names
+    (Alexander Vershilov).
+
+*   Require happstack-server >= 7.
+
+Version 0.10 released 30 May 2012
+
+*   Changed 'readFileUTF8' so it doesn't encode filename on ghc 7.4.
+
+*   Upgraded for compatibility with blaze-html 0.5.  Closes #299.
+
+*   Improved categories. Files are now read strictly to avoid a 'too
+    many open files' error. 'Page' now exports 'readCategories' instead of
+    'extractCategories'.
+
+*   Require filestore 0.5.  This brings in (a) correct handling
+    of unicode paths when compiled under GHC 7.4, and (b) a 'limit'
+    parameter for 'history'. The limit parameter is essential when
+    gitit is used with very large repositories; otherwise history
+    commands would have to parse the entire log.  Handler functions
+    that use 'history' have been updated to use the optional
+    'limit' parameter.
+
+*   Atom feeds are now limited to 200 entries, to prevent server
+    overload.
+
+*   Indicate size of default logo picture in README. Closes #291.
+
+*   Added a README section on restricting access.  Closes #292.
+
+Version 0.9.0.1 released 15 Feb 2012
+
+*   Fixed bug in fromEntities that caused text to be lost in the page
+    source after semicolons.  Thanks to Perry Wagle for reporting the bug.
+
+*   Updated code to run on happstack 7.
+
+*   Removed dependency on happstack-util; depend on base64-bytestring
+    instead.
+
+*   Updated gitit.cabal to include footnotes.js (Ben Sinclair).
+
+Version 0.9 released 29 Feb 2012
+
+*   Gitit now uses the latest pandoc (1.9.x) and happstack-server (6.6.x),
+    and compiles on ghc 7.4.1.
+
+*   Added Docx, AsciiDoc, and DZSlides as export formats.
+
+*   HTML slide show exports are now "self-contained":  they embed all
+    required js, css, and images, so they can be used offline.
+
+*   Allow spaces in usernames (Juraj Hercek).
+
+*   Improve PDF/RTF exports containing images in the wiki.
+    Wikidata paths are translated to absolute ones, so pandoc/pdflatex
+    can find them (Juraj Hercek).
+
+*   Protect against XSS in slide show exports.  Previous versions
+    of gitit sanitized wikipages, but not HTML slide shows.
+
+*   Table of contents is now in a div with ID `TOC`, so it can
+    be styled.
+
+*   Removed letter and word spacing from print.css.
+
+*   Added s5 directory to static.  This is needed by pandoc 1.9.
+
+*   Updated Interwiki plugin (gwern).
+
+*   Added `fromEntities` to `Types`, since `decodeCharacterReferences`
+    is no longer exported from Pandoc.  Added dependency on tagsoup.
+
+*   Provided `FromReqURI` instance for `[String]`, since
+    this is not automatic with recent happstack.
+
+Version 0.8.1 released 02 Sep 2011
+
+*   Support mathjax as a math option.
+    Added MathJax as MathMethod, and mathjax as an option in
+    the 'math' config field.  Resolves GoogleCode 122.
+
+*   Added xss-sanitize configuaration option.
+    Setting it to 'no' turns off sanitization, enabling
+    file:// URLs and other things that get filtered out
+    by xss-sanitize.
+
+*   Listen interface explanation on help file could be more clear (#266)
+    (andyring)
+
+*   Add the new configuration option 'absolute-urls'.
+    When turned on, this makes wikilinks absolute w.r.t. the base-url.
+    By default, they are relative.  So, for example, in a wiki served
+    at the path 'wiki', on a page Sub/Page, the wikilink '[Cactus]()'
+    will produce a link to '/wiki/Cactus' if absolute-urls is on,
+    and otherwise the relative link 'Cactus'.  Patch due to lemmih.
+
+*   Change default listen address to 0.0.0.0.
+
+*   Serve svg file as image, not source code!
+
+*   Page history:  use 'limit' instead of restricting to past year.
+    limit defaults to 100.  If 100 are displayed, you'll get a
+    "Show more..." link that will increase the limit.
+    Also fixed bug that caused a 404 when no history was returned.
+
+*   Require pandoc >= 1.8.2.
+
+*   Allow build with happstack-server 6.2.
+
+*   Updated for use with xss-sanitize 0.3, which uses Text.
+    New dependency on text.
+
+Version 0.8.0.1 released 07 Jun 2011
+
+* Fixed file upload problem with recent versions of directory
+  package. (Thanks to Oliver Braun.)
+
+* Relaxed some version upper bounds.
+
+Version 0.8 released 13 May 2011
+
+* Uses happstack 6.
+
+* Added textile and org export formats, textile page format.
+
+* Added support for RPXNow authentication, based on a patch from
+  Pasqualino Titto Assini.
+
+* Added `authentication-required` field in config.
+
+    * If set to 'modify', authentication is required to modify the wiki.
+    * If set to 'read', atuhentication is required to view the wiki.
+    * If set to 'none', authentication is never required, and pages can
+      be edited anonymously.
+
+    API changes:
+
+    * currentUser moved to Authentication module
+    * requireAuthentication added to Config
+    * Added AuthenticationLevel type
+    * requireUser renamed authenticate, parameter for AuthenticationLevel
+      added; requireUserThat renamed authenticateUserThat
+
+* MathML and jsMath now work in the preview pane (Sean Seefried).
+
+* Use footnotes.js for fancy footnote styling (gwern).
+
+* Added a `--listen` parameter to specify the listen device
+  (Timo B. Hübel).
+
+* Removed withInput.
+
+* Replaced fileContents with filePath in Params.
+
+* Fixed bug in uploadForm.js which caused a prefix to be added in the
+  default wikiname.
+
+
+Version 0.7.3.12 released 01 Feb 2011
+
+* Use pandoc 1.8.
+
+* New export formats: textile, org.
+
+* New page form: textile.
+
+Version 0.7.3.11 released 28 Jan 2011
+
+* Allow time 1.2.
+
+Version 0.7.3.10 released 26 Jan 2011
+
+* Updated for filestore-0.4.0.2.  Gitit should now compile with ghc 7.
+  Note:  It may be necessary to supply the --disable-library-for-ghci
+  flag to 'cabal install highlighting-kate'.
+
+Version 0.7.3.9 released 25 Jan 2011
+
+* Removed dependency on cautious-file.
+  It no longer seems to be actively maintained, and the current
+  configuration does not compile on windows.
+
+* Removed dependency on datetime package.
+  It is no longer maintained.
+  Everything can be done just as well with the time package.
+
+* Depend on filestore >= 0.4 (without datetime dependency).
+
+* Bump version bounds on hslogger, network and HTTP.
+
+* Support for GHC 7.0 in Plugins (thanks to Max Bollingbroke).
+
+* Use xss-sanitize for sanitizing HTML.
+  Previously pandoc's sanitization was used, but this will be
+  removed in the next pandoc release. xss-sanitize is a more complete
+  solution, and also prevents people from messing up layout by inserting
+  unbalanced </div>.
+
+* Updated Feed module to make it decouplable from gitit.
+
+* jQuery.load wasn't working on Safari. Use jQuery.post instead.
+  Also, the convert function was not always in scope. (It is only in
+  scope when MathML is enabled?) We check if it is defined before
+  calling it.  (Thanks to Sean Seefried.)
+
+* Export Page module.
+
+* Templates are in data directory
+
+* Fixed bug in Subst plugin (Lars Petersen).
+  Subst plugin could not deal with non-existing pages, resulting
+  in an server error when trying to substitute with an absent file.
+  This patch now creates a link to the page in order to create it.
+
+* Added alt attribute to logo.
+
 Version 0.7.3.8 released 24 July 2010
 
 * Fixed MathML in Slidy and S5 exports.

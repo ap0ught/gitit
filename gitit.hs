@@ -24,6 +24,8 @@ import Network.Gitit.Server
 import Network.Gitit.Util (readFileUTF8)
 import System.Directory
 import Data.Maybe (isNothing)
+import Data.Text.Encoding (encodeUtf8)
+import Network.Gitit.Compat.Except()
 import Control.Monad.Reader
 import System.Log.Logger (Priority(..), setLevel, setHandlers,
         getLogger, saveGlobalLogger)
@@ -32,8 +34,9 @@ import System.Environment
 import System.Exit
 import System.IO (stderr)
 import System.Console.GetOpt
+import Network.Socket hiding (Debug)
 import Data.Version (showVersion)
-import qualified Data.ByteString as B
+import qualified Data.ByteString.Char8 as B
 import Data.ByteString.UTF8 (fromString)
 
 import Paths_gitit (version, getDataFileName)
@@ -42,9 +45,24 @@ main :: IO ()
 main = do
 
   -- parse options to get config file
-  opts <- getArgs >>= parseArgs
-  defaultConfig <- getDefaultConfig
-  conf <- foldM handleFlag defaultConfig opts
+  args <- getArgs >>= parseArgs
+
+  -- sequence in Either monad gets first Left or all Rights
+  opts <- case sequence args of
+    Left Help -> putErr ExitSuccess =<< usageMessage
+    Left Version -> do
+        progname <- getProgName
+        putErr ExitSuccess (progname ++ " version " ++
+            showVersion version ++ compileInfo ++ copyrightMessage)
+    Left PrintDefaultConfig -> getDataFileName "data/default.conf" >>=
+        readFileUTF8 >>= B.putStrLn . encodeUtf8 >> exitSuccess
+    Right xs -> return xs
+
+  conf' <- case [f | ConfigFile f <- opts] of
+                fs -> getConfigFromFiles fs
+
+  let conf = foldl handleFlag conf' opts
+
   -- check for external programs that are needed
   let repoProg = case repositoryType conf of
                        Mercurial   -> "hg"
@@ -64,57 +82,74 @@ main = do
   saveGlobalLogger $ setLevel level $ setHandlers [logFileHandler] serverLogger
   saveGlobalLogger $ setLevel level $ setHandlers [logFileHandler] gititLogger
 
-  let conf' = conf{logLevel = level}
-
   -- setup the page repository, template, and static files, if they don't exist
-  createRepoIfMissing conf'
-  createStaticIfMissing conf'
-  createTemplateIfMissing conf'
+  createRepoIfMissing conf
+  createStaticIfMissing conf
+  createTemplateIfMissing conf
 
   -- initialize state
-  initializeGititState conf'
+  initializeGititState conf
 
-  let serverConf = Conf { validator = Nothing, port = portNumber conf' }
+  let serverConf = nullConf { validator = Nothing, port = portNumber conf,
+                             timeout = 20, logAccess = Nothing }
+
+  -- open the requested interface
+  sock <- socket AF_INET Stream defaultProtocol
+  setSocketOption sock ReuseAddr 1
+  let portNum = show (portNumber conf)
+  addrs <- getAddrInfo Nothing (Just $ address conf) (Just portNum)
+  case addrs of
+    addr:_ -> bind sock $ addrAddress addr
+    [] -> error $ "Could not resolve " ++ address conf ++ ":" ++ portNum
+  listen sock 10
 
   -- start the server
-  simpleHTTP serverConf $ msum [ wiki conf'
+  simpleHTTPWithSocket sock serverConf $ msum [ wiki conf
                                , dir "_reloadTemplates" reloadTemplates
                                ]
 
-data Opt
+data ExitOpt
     = Help
-    | ConfigFile FilePath
-    | Port Int
-    | Debug
     | Version
     | PrintDefaultConfig
+
+data ConfigOpt
+    = ConfigFile FilePath
+    | Port Int
+    | Listen String
+    | Debug
     deriving (Eq)
+
+type Opt = Either ExitOpt ConfigOpt
 
 flags :: [OptDescr Opt]
 flags =
-   [ Option ['h'] ["help"] (NoArg Help)
+   [ Option ['h'] ["help"] (NoArg (Left Help))
         "Print this help message"
-   , Option ['v'] ["version"] (NoArg Version)
+   , Option ['v'] ["version"] (NoArg (Left Version))
         "Print version information"
-   , Option ['p'] ["port"] (ReqArg (Port . read) "PORT")
+   , Option ['p'] ["port"] (ReqArg (Right . Port . read) "PORT")
         "Specify port"
-   , Option [] ["print-default-config"] (NoArg PrintDefaultConfig)
+   , Option ['l'] ["listen"] (ReqArg (Right . Listen) "INTERFACE")
+        "Specify IP address to listen on"
+   , Option [] ["print-default-config"] (NoArg (Left PrintDefaultConfig))
         "Print default configuration"
-   , Option [] ["debug"] (NoArg Debug)
+   , Option [] ["debug"] (NoArg (Right Debug))
         "Print debugging information on each request"
-   , Option ['f'] ["config-file"] (ReqArg ConfigFile "FILE")
+   , Option ['f'] ["config-file"] (ReqArg (Right . ConfigFile) "FILE")
         "Specify configuration file"
    ]
 
 parseArgs :: [String] -> IO [Opt]
-parseArgs argv = do
-  progname <- getProgName
+parseArgs argv =
   case getOpt Permute flags argv of
     (opts,_,[])  -> return opts
-    (_,_,errs)   -> putErr (ExitFailure 1) (concat errs ++ usageInfo (usageHeader progname) flags)
+    (_,_,errs)   -> putErr (ExitFailure 1) . (concat errs ++) =<< usageMessage
 
-usageHeader :: String -> String
-usageHeader progname = "Usage:  " ++ progname ++ " [opts...]"
+usageMessage :: IO String
+usageMessage = do
+  progname <- getProgName
+  return $ usageInfo ("Usage:  " ++ progname ++ " [opts...]") flags
 
 copyrightMessage :: String
 copyrightMessage = "\nCopyright (C) 2008 John MacFarlane\n" ++
@@ -129,16 +164,11 @@ compileInfo =
   " -plugins"
 #endif
 
-handleFlag :: Config -> Opt -> IO Config
-handleFlag conf opt = do
-  progname <- getProgName
-  case opt of
-    Help               -> putErr ExitSuccess (usageInfo (usageHeader progname) flags)
-    Version            -> putErr ExitSuccess (progname ++ " version " ++ showVersion version ++ compileInfo ++ copyrightMessage)
-    PrintDefaultConfig -> getDataFileName "data/default.conf" >>= readFileUTF8 >>= B.putStrLn . fromString >> exitWith ExitSuccess
-    Debug              -> return conf{ debugMode = True }
-    Port p             -> return conf{ portNumber = p }
-    ConfigFile fname   -> getConfigFromFile fname
+handleFlag :: Config -> ConfigOpt -> Config
+handleFlag conf Debug = conf{ debugMode = True, logLevel = DEBUG }
+handleFlag conf (Port p) = conf { portNumber = p }
+handleFlag conf (Listen l) = conf { address = l }
+handleFlag conf _ = conf
 
 putErr :: ExitCode -> String -> IO a
 putErr c s = B.hPutStrLn stderr (fromString s) >> exitWith c

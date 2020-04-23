@@ -1,6 +1,6 @@
 @import url("reset-fonts-grids.css");
 
-html { background: #f9f9f9; color: black; } 
+html { background: #f9f9f9; color: black; }
 body { margin: 10px; }
 
 fieldset { border: 1px solid #ccc; padding: 1em; }
@@ -16,7 +16,7 @@ option { padding: 0 .4em; }
 table, tr, td, th { border: none; }
 hr { height: 1px; color: #aaa; background-color: #aaa; border: 0; margin: .2em 0 .2em 0; }
 
-h1, h2, h3, h4, h5, h6 { font-weight: normal; border-bottom: 1px solid black; }
+h1, h2, h3, h4, h5, h6 { font-weight: normal; border-bottom: 1px solid #aaa; }
 
 h1.pageTitle { font-size: 197%; margin: 0.2em 0 .5em; }
 
@@ -44,8 +44,9 @@ th { font-weight: bold; }
 caption { margin-bottom: .5em; text-align: center; }
 sup { vertical-align: super; }
 sub { vertical-align: sub; }
+sub, sup { line-height: 0.3em; }
 p, fieldset, table, pre { margin-bottom: 1em; }
-button, input[type="checkbox"], input[type="radio"], input[type="reset"], input[type="submit"] { padding: 1px; }
+button, input[type="checkbox"], input[type="radio"], input[type="reset"], input[type="submit"], input[type="button"] { padding: 1px; }
 
 blockquote { padding: 0 1.6em; color: #666; }
 
@@ -79,8 +80,8 @@ h6 > a:link, h6 > a:active, h6 > a:hover, h6 > a:focus, h6 > a:visited {
 #sidebar ul { padding: 0; margin: 0; margin-left: 1.6em; line-height: 1.5em; }
 #sidebar ul li { color: #888; list-style: square; }
 
-div#toc { background-color: #f9f9f9; border: 10px solid white; margin: 0.8em; margin-right: 0; padding: 0.4em; }
-#toc ul { padding: 0 0 0 1em; margin: 0; list-style: none; }
+div#TOC { background-color: #f9f9f9; border: 10px solid white; margin: 0.8em; margin-right: 0; padding: 0.4em; }
+#TOC ul { padding: 0 0 0 1em; margin: 0; list-style: none; }
 
 #sidebar input, #sidebar select { font-size:  93%; padding: 0.1em; }
 #sidebar input[type='submit'] { border: none; background-color: #ccc; color: white; }
@@ -105,7 +106,7 @@ div#categoryList { padding: 0em; margin: 1em 0 0 0; border: 1px dashed #ccc; }
 .search_result { margin-bottom: 15px; }
 .search_result .match { margin-bottom: 15px; }
 
-code { font-size: 93%; }
+pre>code { display: block; }
 pre.matches { margin: 0; padding: 0; }
 #pattern { background-color: yellow; font-weight: bold; }
 pre.matches span.highlighted { background-color: yellow; }
@@ -129,6 +130,7 @@ ul.tabs li a { text-decoration: none; font-size: 93%; font-weight: bold; margin:
 .index li.page { background-image: url(../img/icons/page.png); }
 .index li.folder { background-image: url(../img/icons/folder.png); }
 .index a { color: #000000; cursor: pointer; text-decoration: none; }
+.index a + a { margin-left: 0.5em; }
 .index a:hover { text-decoration: underline; }
 
 a.updir { font-weight: bold; }
@@ -138,3 +140,54 @@ h2.revision { font-size: 100%; color: #888; font-style: italic; border: none; ma
 div.markupHelp pre { font-size: 77%; overflow: auto; }
 
 .login { display: none; }
+
+/* Style the footnotes; from gwern.net */
+#footnotediv div {
+background-color: white;
+padding: 3px;
+padding: 12px;
+max-width: 800px;
+border: 1px solid #CDBBB5;
+box-shadow: #555 0 0 10px;
+-webkit-box-shadow: #555 0 0 10px;
+-moz-box-shadow: 0 0 10px #555;
+}
+/* Deal with multiple footnotes one after another; Charuru */
+sup + sup { margin-left: 2px; }
+
+/* Make theme responsive */
+@media (max-width: 768px) {
+  #yui-main {
+    float:none!important;
+    margin-left: 0!important;
+  }
+  #maincol {
+    margin-left: 0!important;
+  }
+  #sidebar {
+    width: 100%;
+    float: none;
+  }
+  #logo {
+    float: left;
+    margin-right:5%;
+    margin-top: 12px;
+    width: 30%;
+  }
+  .sitenav {
+    float: left;
+    margin-right: 5%;
+    width: 30%;
+  }
+  .pageTools {
+    float: right;
+    width: 30%
+  }
+}
+@media (max-device-width: 568px) {
+  #logo, .sitenav, .pageTools {
+    float: none;
+    width: 100%;
+  }
+}
+
